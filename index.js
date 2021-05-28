@@ -10,10 +10,12 @@ app.post("/signup", async (req, res) => {
 
 	try {
 
-		const { google_id, firstname, lastname, email } = req.body;
+		const { userId, loginDomain } = req.body;
 
-		const newUser = await pool.query("INSERT INTO LOGIN_INFO (GOOGLE_ID, FIRSTNAME, LASTNAME, EMAIL) VALUES ($1, $2, $3, $4)",
-			[google_id, firstname, lastname, email]
+		const newUser = await pool.query("INSERT INTO LOGIN_INFO (USERID, LOGINDOMAIN) VALUES ($1, $2)",
+
+			[userId, loginDomain]
+
 		);
 
 		res.json(newUser);
@@ -22,7 +24,7 @@ app.post("/signup", async (req, res) => {
 
 		if (err.code === '23505') {
 
-			console.log("User already exists in database.")
+			console.log("Duplicate login info");
 
 		} else {
 
