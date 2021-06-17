@@ -3,7 +3,7 @@ const { postgraphile } = require("postgraphile");
 const cors = require("cors");
 const app = express();
 const pool = require("./database");
-
+/*
 app.use(
 
 	postgraphile(
@@ -17,7 +17,7 @@ app.use(
 		}
 	)
 
-);
+);*/
 app.use(cors());
 app.use(express.json());
 
@@ -58,6 +58,37 @@ app.post("/signup", async (req, res) => {
 		);
 
 		res.json(newUser);
+
+	} catch (err) {
+
+		if (err.code === '23505') {
+
+			console.log("Duplicate login info");
+
+		} else {
+
+			console.log(err);
+
+		}
+
+	}
+
+})
+
+// POST Signup to enter userId into database
+app.post("/register", async (req, res) => {
+
+	try {
+
+		const { userId, firstName, lastName, dateOfBirth, heightFt, heightIn, school, position } = req.body;
+
+		const registerUser = await pool.query("INSERT INTO ACCOUNT_INFO (USERID, FIRSTNAME, LASTNAME, DATEOFBIRTH, HEIGHTFT, HEIGHTIN, SCHOOL, POSITION) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+
+			[userId, firstName, lastName, dateOfBirth, heightFt, heightIn, school, position]
+
+		);
+
+		res.json(registerUser);
 
 	} catch (err) {
 
