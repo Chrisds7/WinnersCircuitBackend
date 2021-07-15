@@ -1,40 +1,48 @@
 const express = require("express");
-const { postgraphile } = require("postgraphile");
-const cors = require("cors");
-const app = express();
+
 const pool = require("./database");
-/*
-app.use(
 
-	postgraphile(
+const app = express();
 
-		"postgres://postgres:admin@localhost:5432/wc_test",
-		"public",
-		{
-			watchPg: true,
-			graphiql: true,
-			enchanceGraphiql: true
-		}
-	)
-
-);*/
-app.use(cors());
 app.use(express.json());
 
-// GET Signup to check if user exists in database
-app.get("/signup/:userId", async (req, res) => {
+// POST Register: Enter a new user into the database
+app.post("/api/v1/register", async (req, res) => {
 
 	try {
 
-		const user = req.params.userId;
+		const { email, firstName, lastName, dateOfBirth, heightFt, heightIn, school, position } = req.body;
 
-		const userExists = await pool.query("SELECT EXISTS(SELECT * FROM LOGIN_INFO WHERE USERID = $1)",
+		const user = await pool.query("INSERT INTO ACCOUNTINFO (EMAIL, FIRSTNAME, LASTNAME, DATEOFBIRTH, HEIGHTINFEET, HEIGHTININCHES, SCHOOL, PLAYERPOSITION) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
 
-			[user]
+			[email, firstName, lastName, dateOfBirth, heightFt, heightIn, school, position]
 
 		);
 
-		return res.json(userExists);
+		res.json(user);
+
+	} catch (err) {
+
+		console.log(err);
+
+	}
+
+})
+
+// GET Register: Return a user from the database by their email
+app.get("/api/v1/register/:email", async (req, res) => {
+
+	try {
+
+		const email = req.params.email;
+
+		const user = await pool.query("SELECT * FROM ACCOUNTINFO WHERE EMAIL = $1",
+
+			[email]
+
+		);
+
+		return res.json(user);
 
 	} catch (err) {
 
@@ -44,73 +52,55 @@ app.get("/signup/:userId", async (req, res) => {
 
 });
 
-// POST Signup to enter userId into database
-app.post("/signup", async (req, res) => {
+// DELETE Register: Delete a user from the database by their email
+app.delete("/api/v1/register/:email", async (req, res) => {
 
 	try {
 
-		const { userId, loginDomain } = req.body;
+		const email = req.params.email;
 
-		const newUser = await pool.query("INSERT INTO LOGIN_INFO (USERID, LOGINDOMAIN) VALUES ($1, $2)",
+		const user = await pool.query("DELETE FROM ACCOUNTINFO WHERE EMAIL = $1",
 
-			[userId, loginDomain]
+			[email]
 
 		);
 
-		res.json(newUser);
+		return res.json(user);
 
 	} catch (err) {
 
-		if (err.code === '23505') {
-
-			console.log("Duplicate login info");
-
-		} else {
-
-			console.log(err);
-
-		}
+		console.log(err);
 
 	}
 
-})
+});
 
-// POST Signup to enter userId into database
-app.post("/register", async (req, res) => {
+app.put("/api/v1/register/:email", async (req, res) => {
 
 	try {
 
-		const { userId, firstName, lastName, dateOfBirth, heightFt, heightIn, school, position } = req.body;
+		const email = req.params.email;
 
-		const registerUser = await pool.query("INSERT INTO ACCOUNT_INFO (USERID, FIRSTNAME, LASTNAME, DATEOFBIRTH, HEIGHTFT, HEIGHTIN, SCHOOL, POSITION) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+		const { firstName, lastName, dateOfBirth, heightFt, heightIn, school, position } = req.body;
 
-			[userId, firstName, lastName, dateOfBirth, heightFt, heightIn, school, position]
+		const user = await pool.query("UPDATE ACCOUNTINFO SET FIRSTNAME = $1, LASTNAME = $2, DATEOFBIRTH = $3, HEIGHTINFEET = $4, HEIGHTININCHES = $5, SCHOOL = $6, PLAYERPOSITION = $7 WHERE EMAIL = $8", 
+
+			[firstName, lastName, dateOfBirth, heightFt, heightIn, school, position, email]
 
 		);
 
-		res.json(registerUser);
+		return res.json(user);
 
 	} catch (err) {
 
-		if (err.code === '23505') {
-
-			console.log("Duplicate login info");
-
-		} else {
-
-			console.log(err);
-
-		}
+		console.log(err);
 
 	}
 
-})
+});
 
 app.listen(5000, () => {
 
 	console.log("Server opened on port 5000")
 
 });
-
-
-
