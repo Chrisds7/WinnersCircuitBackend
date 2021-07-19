@@ -1,7 +1,7 @@
 const express = require("express");
-
+const axios = require('axios');
 const pool = require("./database");
-
+require('dotenv').config();
 const app = express();
 
 app.use(express.json());
@@ -11,8 +11,10 @@ app.post("/api/v1/register", async (req, res) => {
 
 	try {
 
+		// Destructure the request body
 		const { authId, authName, authFamilyName, authGivenName, email, emailVerified, firstName, lastName, dateOfBirth, heightFt, heightIn, school, position } = req.body;
 
+		// Add the user to the database
 		const user = await pool.query(`
 
 			INSERT INTO ACCOUNTINFO 
@@ -23,6 +25,36 @@ app.post("/api/v1/register", async (req, res) => {
 			[authId, authName, authFamilyName, authGivenName, email, emailVerified, firstName, lastName, dateOfBirth, heightFt, heightIn, school, position]
 
 		);
+
+		// JSON payload to update user metadata
+		const payload = { 
+
+			"registrationState": "Registered" 
+
+		}
+
+		// HTTP headers to update user metadata
+		const headers = {
+
+			"Authorization": `Bearer ${process.env.AUTH0_API_TOKEN}`,
+			"Content-Type": "application/json"
+
+		}
+
+		// Send a post request to the Auth0 Management API and update the registration status of the user
+		await axios.patch(`https://winnerscircuit.us.auth0.com/api/v2/users/${authId}`, payload, {
+
+			headers: headers
+
+		}).then((response) => {
+
+			console.log("Successfully updated user registration status!");
+
+		}).catch((err) => {
+
+			console.log(err);
+
+		})
 
 		res.json(user);
 
