@@ -142,6 +142,34 @@ app.put("/api/v1/register/:authId", async (req, res) => {
 
 });
 
+app.get("/api/v1/userMetadata/:authId", async(req, res) => {
+
+	try {
+
+		const authId = req.params.authId;
+
+		const headers = {
+
+			"Authorization": `Bearer ${process.env.AUTH0_API_TOKEN}`
+
+		}
+
+		const user = await axios.get(`https://winnerscircuit.us.auth0.com/api/v2/users/${authId}`, {
+
+			headers: headers
+
+		});
+
+		return res.send(user.data);
+
+	} catch (err) {
+
+		console.log(err);
+
+	}
+
+});
+
 app.listen(5000, () => {
 
 	console.log("Server opened on port 5000")
