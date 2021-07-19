@@ -162,7 +162,7 @@ app.get("/api/v1/userMetadata/:authId", async(req, res) => {
 
 		});
 
-		return res.send(user.data);
+		return res.json(user.data);
 
 	} catch (err) {
 
