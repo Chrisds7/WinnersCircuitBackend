@@ -79,6 +79,8 @@ app.get("/api/v1/register/:authId", async (req, res) => {
 
 		);
 
+		console.log(user);
+
 		return res.json(user);
 
 	} catch (err) {
@@ -160,7 +162,7 @@ app.get("/api/v1/userMetadata/:authId", async(req, res) => {
 
 		});
 
-		return res.json(user.data);
+		return res.send(user.data);
 
 	} catch (err) {
 
