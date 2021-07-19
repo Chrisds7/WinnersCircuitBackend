@@ -148,6 +148,8 @@ app.get("/api/v1/userMetadata/:authId", async(req, res) => {
 
 	try {
 
+		res.setHeader('Content-Type', 'application/json');
+
 		const authId = req.params.authId;
 
 		const headers = {
