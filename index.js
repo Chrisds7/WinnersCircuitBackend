@@ -29,7 +29,7 @@ app.post("/api/v1/register", async (req, res) => {
 		// JSON payload to update user metadata
 		const payload = { 
 
-			"registrationState": "Registered" 
+			"user_metadata": { "registrationState": "Registered" } 
 
 		}
 
