@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // GET Route: CSURF Token
-app.get('/api/v1/csurf', csrfProtection, function(req, res) {
+app.get('/api/v1/csrf', csrfProtection, function(req, res) {
 
 	res.send({ csrfToken: req.csrfToken() });
 
