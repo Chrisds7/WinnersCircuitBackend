@@ -1,13 +1,40 @@
+// Dependencies
+
+// Express and Axios for HTTP handling
 const express = require("express");
 const axios = require('axios');
-const pool = require("./database");
+
+// Postgres database information
+const pool = require('./database');
+
+// Cross site forgery protection
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const csrf = require('csurf');
+
+// Dotenv
 require('dotenv').config();
+
+// Instantiate app
 const app = express();
 
+// Set up csrf middleware
+const csrfProtection = csrf({ cookie: true });
+const parseForm = bodyParser.urlencoded({ extended: false });
+
+// Express middleware
 app.use(express.json());
+app.use(cookieParser());
+
+// GET Route: CSURF Token
+app.get('/api/v1/csurf', csrfProtection, function(req, res) {
+
+	res.send({ csrfToken: req.csrfToken() });
+
+});
 
 // POST Register: Enter a new user into the database
-app.post("/api/v1/register", async (req, res) => {
+app.post("/api/v1/register", parseForm, csrfProtection, async (req, res) => {
 
 	try {
 
